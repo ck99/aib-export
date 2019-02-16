@@ -2,6 +2,16 @@
 
 OUTPUTFILE=$1
 
+RANGESTART=$2
+SYEAR=$(echo ${RANGESTART} | cut -d- -f1)
+SMONTH=$(echo ${RANGESTART} | cut -d- -f2)
+SDAY=$(echo ${RANGESTART} | cut -d- -f3)
+
+RANGEEND=$3
+EYEAR=$(echo ${RANGEEND} | cut -d- -f1)
+EMONTH=$(echo ${RANGEEND} | cut -d- -f2)
+EDAY=$(echo ${RANGEEND} | cut -d- -f3)
+
 ACCOUNT="0"
 
 CREDENTIALS="credentials.json"
@@ -85,12 +95,12 @@ TOKEN=$(cat step4 | grep -B 30 "Apply Filter" | grep "transactionToken" | sed 's
 $_POST \
   -F "transactionToken=$TOKEN"  \
   -F "dsAccountIndex=$ACCOUNT"  \
-  -F 'startDate.DD=01'          \
-  -F 'startDate.MM=01'          \
-  -F 'startDate.YYYY=2018'      \
-  -F 'endDate.DD=15'            \
-  -F 'endDate.MM=02'            \
-  -F 'endDate.YYYY=2019'        \
+  -F "startDate.DD=$SDAY"       \
+  -F "startDate.MM=$SMONTH"     \
+  -F "startDate.YYYY=$SYEAR"    \
+  -F "endDate.DD=$EDAY"         \
+  -F "endDate.MM=$EMONTH"       \
+  -F "endDate.YYYY=$EYEAR"      \
   -F 'errFlag=false'            \
   -F 'minAmount=0.00'           \
   -F 'maxAmount=999999999.00'   \
@@ -134,7 +144,7 @@ $_POST \
 $TRANSACTIONS > $OUTPUTFILE
 printf "OK\n"
 
-echo "Exported transactions to ${OUTPUTFILE}"
+echo "Exported transactions between ${RANGESTART} and ${RANGEEND} to ${OUTPUTFILE}"
 
 printf "Cleaning up ... "
 # cleanup
