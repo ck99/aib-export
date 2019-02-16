@@ -25,6 +25,7 @@ To make this run, you'll need:
 	`$ ./aib-export.sh exported_transactions.csv 2018-01-01 2018-12-31`
 
 ## Known Issues
+ * There is *absolutely no error handling*. **NONE!**
  * AIB Internet Banking has a 24 month historical limit on transaction export.
 	 * Not much we can do about that: it is what it is.
  * I've so far only used the script to export the transactions from a single account. This account happens to be the first one in the sort order for me.
