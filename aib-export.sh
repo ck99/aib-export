@@ -17,7 +17,7 @@ ACCOUNT="0"
 CREDENTIALS="credentials.json"
 getpac()
 {
-	REQDIGIT=$(expr $1 - 1)
+  REQDIGIT=$(expr $1 - 1)
   return $(jq ".PAC[${REQDIGIT}]" $CREDENTIALS)
 }
 
