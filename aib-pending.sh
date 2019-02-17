@@ -1,5 +1,7 @@
 #! /bin/bash
 
+OUTPUTFILE=$1
+
 ./aib-login.sh
 
 source vars.sh
@@ -18,8 +20,16 @@ printf "OK\n"
 
 
 TABLEROWS=$(cat step4 | pup 'table.transaction-table:nth-of-type(1)' | pup -n 'tr')
-
+echo "" > $OUTPUTFILE
 for i in $(seq 3 $TABLEROWS); do
     lines=$(cat step4 | pup 'table.transaction-table:nth-of-type(1)' | pup "tr:nth-of-type($i) text{}"  | grep -v "^\s*$" | sed 's@^\s\+@@g' | uniq)
-    echo $lines
+    echo $lines >> $OUTPUTFILE
 done
+
+echo "Exported pending transactions to ${OUTPUTFILE}"
+
+printf "Cleaning up ... "
+# cleanup
+rm -rf $COOKIES
+rm -rf step1 step2 step3 step4
+printf "OK\n"
