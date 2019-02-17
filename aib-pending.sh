@@ -20,10 +20,21 @@ printf "OK\n"
 
 
 TABLEROWS=$(cat step4 | pup 'table.transaction-table:nth-of-type(1)' | pup -n 'tr')
-echo "" > $OUTPUTFILE
+echo "\"DATE\",\"DESCRIPTION\",\"AMOUNT\"" > $OUTPUTFILE
+transdate=""
 for i in $(seq 3 $TABLEROWS); do
     lines=$(cat step4 | pup 'table.transaction-table:nth-of-type(1)' | pup "tr:nth-of-type($i) text{}"  | grep -v "^\s*$" | sed 's@^\s\+@@g' | uniq)
-    echo $lines >> $OUTPUTFILE
+    linecount=$(echo "$lines" | wc -l)
+    charcount=$(echo "$lines" | wc -c)
+    if [[ "$linecount" -eq "1" ]] && [[ "$charcount" -gt "1" ]] ; then
+        transdate=$(echo "$lines" | sed 's@.*,\ \([0-9]\+\)[a-z]\+@\1@g' | xargs -0 date +%Y-%m-%d -d)
+    else if [[ "$linecount" -gt "1" ]]; then
+        desc=$(echo "$lines" | head -1)
+        rest=$(echo "$lines" | tail -n +2)
+        amt=$(echo $rest | awk '{print $1$2}')
+        echo "\"${transdate}\",\"${desc}\",\"${amt}\"" >> $OUTPUTFILE
+        fi
+    fi
 done
 
 echo "Exported pending transactions to ${OUTPUTFILE}"
