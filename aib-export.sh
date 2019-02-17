@@ -44,7 +44,7 @@ printf "OK\n"
 
 # Respond to first challenge: send registration number
 printf "Send registration number ... "
-TOKEN=$(cat step1 | grep transactionToken | sed 's@.*value=\"@@g' | sed 's@\".*@@g')
+TOKEN=$(cat step1 | pup 'form#loginstep1Form input#transactionToken attr{value}')
 $_POST \
   -F "transactionToken=$TOKEN" \
   -F "regNumber=$REGNUMBER"    \
@@ -55,9 +55,9 @@ printf "OK\n"
 
 
 # Parse requested PAC digits and fetch them from credential store
-REQDIGIT1=$(cat step2 | grep "/strong"| sed 's@.*\([0-9]\).*@\1@g' | tail -n +1 | head -1)
-REQDIGIT2=$(cat step2 | grep "/strong"| sed 's@.*\([0-9]\).*@\1@g' | tail -n +2 | head -1)
-REQDIGIT3=$(cat step2 | grep "/strong"| sed 's@.*\([0-9]\).*@\1@g' | tail -n +3 | head -1)
+REQDIGIT1=$(cat step2 | pup 'form#loginstep2Form div.x3-login:nth-of-type(1) label text{}' | grep [0-9] | sed 's@\s*@@g')
+REQDIGIT2=$(cat step2 | pup 'form#loginstep2Form div.x3-login:nth-of-type(2) label text{}' | grep [0-9] | sed 's@\s*@@g')
+REQDIGIT3=$(cat step2 | pup 'form#loginstep2Form div.x3-login:nth-of-type(3) label text{}' | grep [0-9] | sed 's@\s*@@g')
 getpac $REQDIGIT1
 RESPDIGIT1=$?
 getpac $REQDIGIT2
@@ -66,7 +66,7 @@ getpac $REQDIGIT3
 RESPDIGIT3=$?
 # Respond to second challenge: send specific PAC digits
 printf "Send PAC digits: %d, %d and %d ... " ${REQDIGIT1} ${REQDIGIT2} ${REQDIGIT3}
-TOKEN=$(cat step2 | grep transactionToken | sed 's@.*value=\"@@g' | sed 's@\".*@@g')
+TOKEN=$(cat step2 | pup 'form#loginstep2Form input#transactionToken attr{value}')
 $_POST \
   -F 'jsEnabled=TRUE'                   \
   -F "transactionToken=$TOKEN"          \
@@ -80,18 +80,19 @@ printf "OK\n"
 
 # Navigate to historical transactions page
 printf "Navigate to historical transactions ... "
-TOKEN=$(cat step3 | grep -A 1 "historicaltransactions" | tail -1 | sed 's@.*value=\"@@g' | sed 's@\".*@@g')
+URL=$(cat step3 | pup 'form#historicalstatement_form_id attr{action}')
+TOKEN=$(cat step3 | pup 'form#historicalstatement_form_id input#transactionToken attr{value}')
 $_POST \
   -F 'isFormButtonClicked=true' \
   -F "dsAccountIndex=$ACCOUNT" \
   -F "transactionToken=$TOKEN" \
-$TRANSACTIONS > step4
+"${_BASEURL}/${URL}" > step4
 printf "OK\n"
 
 
 # Get filtered historical transactions
 printf "Filter historical transactions ... "
-TOKEN=$(cat step4 | grep -B 30 "Apply Filter" | grep "transactionToken" | sed 's@.*value=\"@@g' | sed 's@\".*@@g')
+TOKEN=$(cat step4 | pup 'form#historicalTransactionsCommand json{}' | jq -r '.[1].children[-1].children|map(select(.id == "transactionToken"))[0].value')
 $_POST \
   -F "transactionToken=$TOKEN"  \
   -F "dsAccountIndex=$ACCOUNT"  \
@@ -133,7 +134,7 @@ printf "OK\n"
 
 # Export historical transactions
 printf "Export historical transactions ... "
-TOKEN=$(cat step5 | grep -B 10 "<button>Export</button>" | grep transactionToken | sed 's@.*value=\"@@g' | sed 's@\".*@@g')
+TOKEN=$(cat step5 | pup 'form#historicalTransactionsCommand json{}' | jq -r '.[0].children|map(select(.id == "transactionToken"))[0].value')
 $_POST \
   -F "transactionToken=$TOKEN"  \
   -F "dsAccountIndex=$ACCOUNT"  \

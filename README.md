@@ -12,6 +12,7 @@ It should be possible to re-work this script to achieve whatever you need to do,
 To make this run, you'll need:
  * curl
  * jq (https://github.com/stedolan/jq)
+ * pup (https://github.com/EricChiang/pup)
  * a bank account with Internet Banking enabled at aib.ie
  * your access credentials for said Internet Banking
 
