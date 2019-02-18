@@ -14,13 +14,13 @@ REGNUMBER=$(jq -r '.registrationNumber' $CREDENTIALS)
 rm -rf $COOKIES
 
 # Fetch initial Login screen
-printf "Fetch login screen ... "
+printf "Fetch login screen ... " 1>&2
 $_CURL $LOGIN > step1
-printf "OK\n"
+printf "OK\n" 1>&2
 
 
 # Respond to first challenge: send registration number
-printf "Send registration number ... "
+printf "Send registration number ... " 1>&2
 TOKEN=$(cat step1 | pup 'form#loginstep1Form input#transactionToken attr{value}')
 $_POST \
   -F "transactionToken=$TOKEN" \
@@ -28,7 +28,7 @@ $_POST \
   -F 'jsEnabled=TRUE'          \
   -F '_target1=true'           \
 $LOGIN > step2
-printf "OK\n"
+printf "OK\n" 1>&2
 
 
 # Parse requested PAC digits and fetch them from credential store
@@ -42,7 +42,7 @@ RESPDIGIT2=$?
 getpac $REQDIGIT3
 RESPDIGIT3=$?
 # Respond to second challenge: send specific PAC digits
-printf "Send PAC digits: %d, %d and %d ... " ${REQDIGIT1} ${REQDIGIT2} ${REQDIGIT3}
+printf "Send PAC digits: %d, %d and %d ... " ${REQDIGIT1} ${REQDIGIT2} ${REQDIGIT3} 1>&2
 TOKEN=$(cat step2 | pup 'form#loginstep2Form input#transactionToken attr{value}')
 $_POST \
   -F 'jsEnabled=TRUE'                   \
@@ -52,4 +52,4 @@ $_POST \
   -F "pacDetails.pacDigit3=$RESPDIGIT3" \
   -F '_finish=true'                     \
 $LOGIN > step3
-printf "OK\n"
+printf "OK\n" 1>&2
