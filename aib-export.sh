@@ -34,7 +34,6 @@ $_POST \
 "${_BASEURL}/${URL}" > step4
 printf "OK\n" 1>&2
 
-
 # Get filtered historical transactions
 printf "Filter historical transactions ... " 1>&2
 TOKEN=$(cat step4 | pup 'form#historicalTransactionsCommand json{}' | jq -r '.[1].children[-1].children|map(select(.id == "transactionToken"))[0].value')
@@ -76,7 +75,6 @@ $_POST \
 $TRANSACTIONS > step5
 printf "OK\n" 1>&2
 
-
 # Export historical transactions
 printf "Export historical transactions ... " 1>&2
 TOKEN=$(cat step5 | pup 'form#historicalTransactionsCommand json{}' | jq -r '.[0].children|map(select(.id == "transactionToken"))[0].value')
@@ -95,5 +93,5 @@ echo "Exported transactions between ${RANGESTART} and ${RANGEEND}" 1>&2
 printf "Cleaning up ... " 1>&2
 # cleanup
 rm -rf $COOKIES
-rm -rf step1 step2 step3 step4 step5
+rm -rf step1 step2 step3 step3a step4 step5
 printf "OK\n" 1>&2

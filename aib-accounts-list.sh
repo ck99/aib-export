@@ -28,5 +28,5 @@ echo "Exported accounts list"
 printf "Cleaning up ... " 1>&2
 # cleanup
 rm -rf $COOKIES
-rm -rf step1 step2 step3
+rm -rf step1 step2 step3 step3a
 printf "OK\n" 1>&2
