@@ -59,12 +59,5 @@ $_POST \
   -F "pacDetails.pacDigit2=$RESPDIGIT2" \
   -F "pacDetails.pacDigit3=$RESPDIGIT3" \
   -F '_finish=true'                     \
-$LOGIN > step3a
-printf "Accepting Interrupter\n" 1>&2
-
-TOKEN=$(cat step3a | pup 'form#form2 input#transactionToken attr{value}')
-$_POST \
-    -F "transactionToken=$TOKEN"          \
-    -F "iBankFormSubmission=true"         \
-$INTERRUPTER > step3
+$LOGIN > step3
 printf "OK\n" 1>&2
